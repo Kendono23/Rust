@@ -1,8 +1,8 @@
 fn main() {
     // Generate nth Fibonacci numbers
     
-    let mut n1 = 0;
-    let mut n2 = 1;
+    let n1 = 0;
+    let n2 = 1;
     
     print!("How many Fibonacci numbers do you want to print? ");
     println!();
@@ -22,8 +22,8 @@ fn main() {
     n = n - 3;
     while n > 0 {
         
-        n1 = n2;
-        n2 = n3;
+        let n1 = n2;
+        let n2 = n3;
         
         let n3 = n1 + n2;
         print!("{}, ", n3);
