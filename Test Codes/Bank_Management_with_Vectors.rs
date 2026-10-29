@@ -39,7 +39,7 @@ impl Bank
         }
     }
     
-    fn login(accounts: &mut Vec<User>) -> usize
+    fn login(accounts: &mut Vec<User>) -> Option<usize>
     {
         print!("Enter your account number: ");
         
@@ -95,14 +95,14 @@ impl Bank
                 {
                     print!("Welcome {}!", value.name);
                     value.logged_in = true;
-                    return index_value;
+                    return Some(index_value);
                 }
             }
             
             index_value = index_value + 1;
         }
         
-        return index_value;
+        return None;
     }
     
     fn deposit(self: &mut Self) -> bool
@@ -207,7 +207,18 @@ fn main()
     println!("All accounts have been generated successfully!");
     println!();
     
-    acc_index = Bank::login(&mut accounts);
+    acc_index = loop {
+        match Bank::login(&mut accounts) {
+            None => { 
+                println!("Failure to Authenticate Accound!");
+                println!("Incorrect Account Number or Pin!");
+                continue;
+            },
+            Some(num) => break num,
+        }
+    };
+    
+    
     println!();
     println!("Login: {}", &accounts[acc_index].logged_in);
     println!("Account found at index: {acc_index}");
@@ -215,4 +226,4 @@ fn main()
     
     
         
-}
+    }
