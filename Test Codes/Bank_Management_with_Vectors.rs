@@ -158,6 +158,57 @@ impl User
     
 }
 
+fn manage_account_utils(user: &mut User) -> u8
+{
+    
+    'bank_account_utils: loop{
+        println!();
+        
+        println!("Choose an action to perform on your account:");
+        println!();
+    
+        println!("1. Change your pin.");
+        println!("2. Deactivate Account.");
+        println!("3. Go Back to Previous Page.");
+        println!("4. Logout.");
+        println!("5. Logout and Exit. (haven't implemented yet.)");
+        
+        println!();
+        print!("Enter your choice: ");
+        
+        io::stdout()
+                    .flush()
+                    .expect("Failure to flush out buffer.");
+                        
+        let mut banking_utilities: u8 = loop {
+            let mut banking_utilities: String = String::new();
+        
+            io::stdin()
+                        .read_line(&mut banking_utilities)
+                        .expect("Failure to read input!");
+        
+            let mut banking_utilities: u8 = match banking_utilities.trim().parse::<u8>() {
+                Ok(num) => break num,
+                Err(_) => continue,
+            };
+        };
+            
+        match banking_utilities {
+            1 => user.acc_details.change_pin(),
+            2 => user.acc_details.deactivate_account(),
+            3 => { println!(); return 3u8; },
+            4 => { println!(); return 4u8; },
+            5 => { return 5u8; }
+            _ => {
+                println!();
+                println!("Enter a valid choice!");
+                println!();
+                continue 'bank_account_utils;
+            },
+        }
+    }
+}
+
 fn main()
 {
     let mut accounts: Vec<User> = Vec::new();
@@ -284,59 +335,14 @@ fn main()
                 1 => user.acc_details.check_balance(),
                 2 => user.acc_details.deposit(),
                 3 => user.acc_details.withdraw(),
-                
-                4 => {
-                        'bank_account_utils: loop{
-                        println!();
-        
-                        println!("Choose an action to perform on your account:");
-                        println!();
-    
-                        println!("1. Change your pin.");
-                        println!("2. Deactivate Account.");
-                        println!("3. Go Back to Previous Page.");
-                        println!("4. Logout.");
-                        println!("5. Logout and Exit. (haven't implemented yet.)");
-        
-                        println!();
-                        print!("Enter your choice: ");
-        
-                        io::stdout()
-                                    .flush()
-                                    .expect("Failure to flush out buffer.");
-                        
-                        banking_utilities = loop {
-                            let mut banking_utilities: String = String::new();
-        
-                            io::stdin()
-                                        .read_line(&mut banking_utilities)
-                                        .expect("Failure to read input!");
-        
-                            let mut banking_utilities: u8 = match banking_utilities.trim().parse::<u8>() {
-                                Ok(num) => num,
-                                Err(_) => continue,
-                            };
-                        };
-            
-                        match banking_utilities {
-                                1 => user.acc_details.change_pin(),
-                                2 => user.acc_details.deactivate_account(),
-                                3 => continue 'bank_utils,
-                                4 => continue 'account_login,
-                                _ => {
-                                        println!();
-                                        println!("Enter a valid choice!");
-                                        println!();
-                                        continue 'bank_account_utils;
-                                    },
-                                }
-                        }
-                    
-                    },
-                
-                //4 => break 'bank_utils,
-                
-                5 => continue 'account_login,
+                4 => match manage_account_utils(user) { // could move this fn into impl User 
+                    3 => continue 'bank_utils,
+                    4 => continue 'account_login,
+                    5 => { return; }
+                    _ => ()
+                },
+                5 => { println!(); continue 'account_login; },
+                6 => { return; }
                 _ => {
                         println!();
                         println!("Enter a valid choice!");
@@ -345,57 +351,7 @@ fn main()
                     },
             }
         }
-        
-        /*'bank_account_utils: loop{
-            println!();
-        
-            println!("Choose an action to perform on your account:");
-            println!();
-    
-            println!("1. Change your pin.");
-            println!("2. Deactivate Account.");
-            println!("3. Go Back to Previous Page.");
-            println!("4. Logout.");
-            println!("5. Logout and Exit. (haven't implemented yet.)");
-        
-            println!();
-            print!("Enter your choice: ");
-        
-            io::stdout()
-                        .flush()
-                        .expect("Failure to flush out buffer.");
-                        
-            banking_utilities = loop {
-                let mut banking_utilities: String = String::new();
-        
-                io::stdin()
-                            .read_line(&mut banking_utilities)
-                            .expect("Failure to read input!");
-        
-                let mut banking_utilities: u8 = match banking_utilities.trim().parse::<u8>() {
-                    Ok(num) => num,
-                    Err(_) => continue,
-                };
-            };
-            
-            match banking_utilities {
-                1 => user.acc_details.change_pin(),
-                2 => user.acc_details.deactivate_account(),
-                3 => continue 'bank_utils,
-                4 => continue 'account_login,
-                _ => {
-                    println!();
-                    println!("Enter a valid choice!");
-                    println!();
-                    continue 'bank_account_utils;
-                },
-            }
-        } */
     
     }
-    
-    
-    
-    
         
-}
+    }
