@@ -105,19 +105,39 @@ impl Bank
         return None;
     }
     
-    fn deposit(self: &mut Self) -> bool
+    fn deposit(self: &mut Self)
     {
-        todo!();
+        println!();
+        println!("Deposit working as intended!");
+        println!();
     }
     
-    fn withdraw(self: &mut Self) -> bool
+    fn withdraw(self: &mut Self)
     {
-        todo!();
+        println!();
+        println!("Withdraw working as intended!");
+        println!();
     }
     
     fn check_balance(self: &mut Self)
     {
-        todo!();
+        println!();
+        println!("Check Balance working as intended!");
+        println!();
+    }
+    
+    fn change_pin(self: &mut Self)
+    {
+        println!();
+        println!("Change Pin working as intended!");
+        println!();
+    }
+    
+    fn deactivate_account(self: &mut Self)
+    {
+        println!();
+        println!("Deactivate working as intended!");
+        println!();
     }
 }
 
@@ -151,6 +171,7 @@ fn main()
     // let mut logged_in: bool = false;
     
     let mut acc_index: usize = 0;
+    let mut banking_utilities: u8 = 0;
 
     print!("Enter the number of accounts that you want to create: ");
     
@@ -207,23 +228,174 @@ fn main()
     println!("All accounts have been generated successfully!");
     println!();
     
-    acc_index = loop {
-        match Bank::login(&mut accounts) {
-            None => { 
-                println!("Failure to Authenticate Accound!");
-                println!("Incorrect Account Number or Pin!");
-                continue;
-            },
-            Some(num) => break num,
+    'account_login: loop {
+    
+        acc_index = loop {
+            match Bank::login(&mut accounts) {
+                None => { 
+                    println!("Failure to Authenticate Accound!");
+                    println!("Incorrect Account Number or Pin!");
+                    println!();
+                    continue;
+                },
+                Some(num) => break num,
+            }
+        };
+    
+        println!();
+        println!("Login: {}", &accounts[acc_index].logged_in);
+        println!("Account found at index: {acc_index}");
+    
+        let user: &mut User = &mut accounts[acc_index];
+        
+        'bank_utils: loop {
+        
+            println!("Choose an action to perform on your account:");
+            println!();
+    
+            println!("1. Check Balance.");
+            println!("2. Deposit Money.");
+            println!("3. Withdraw Money.");
+            println!("4. Manage Account.");
+            println!("5. Logout.");
+            println!("6. Logout and Exit. (haven't implemented yet.)");
+    
+            println!();
+            print!("Enter your choice: ");
+            
+            io::stdout()
+                        .flush()
+                        .expect("Failure to flush buffer.");
+        
+            banking_utilities = loop {
+                let mut banking_utilities: String = String::new();
+        
+                io::stdin()
+                            .read_line(&mut banking_utilities)
+                            .expect("Failure to read input!");
+        
+                let mut banking_utilities: u8 = match banking_utilities.trim().parse::<u8>() {
+                    Ok(num) => break num,
+                    Err(_) => continue,
+                };
+            };
+        
+            match banking_utilities {
+                1 => user.acc_details.check_balance(),
+                2 => user.acc_details.deposit(),
+                3 => user.acc_details.withdraw(),
+                
+                4 => {
+                        'bank_account_utils: loop{
+                        println!();
+        
+                        println!("Choose an action to perform on your account:");
+                        println!();
+    
+                        println!("1. Change your pin.");
+                        println!("2. Deactivate Account.");
+                        println!("3. Go Back to Previous Page.");
+                        println!("4. Logout.");
+                        println!("5. Logout and Exit. (haven't implemented yet.)");
+        
+                        println!();
+                        print!("Enter your choice: ");
+        
+                        io::stdout()
+                                    .flush()
+                                    .expect("Failure to flush out buffer.");
+                        
+                        banking_utilities = loop {
+                            let mut banking_utilities: String = String::new();
+        
+                            io::stdin()
+                                        .read_line(&mut banking_utilities)
+                                        .expect("Failure to read input!");
+        
+                            let mut banking_utilities: u8 = match banking_utilities.trim().parse::<u8>() {
+                                Ok(num) => num,
+                                Err(_) => continue,
+                            };
+                        };
+            
+                        match banking_utilities {
+                                1 => user.acc_details.change_pin(),
+                                2 => user.acc_details.deactivate_account(),
+                                3 => continue 'bank_utils,
+                                4 => continue 'account_login,
+                                _ => {
+                                        println!();
+                                        println!("Enter a valid choice!");
+                                        println!();
+                                        continue 'bank_account_utils;
+                                    },
+                                }
+                        }
+                    
+                    },
+                
+                //4 => break 'bank_utils,
+                
+                5 => continue 'account_login,
+                _ => {
+                        println!();
+                        println!("Enter a valid choice!");
+                        println!();
+                        continue 'bank_utils;
+                    },
+            }
         }
-    };
+        
+        /*'bank_account_utils: loop{
+            println!();
+        
+            println!("Choose an action to perform on your account:");
+            println!();
     
+            println!("1. Change your pin.");
+            println!("2. Deactivate Account.");
+            println!("3. Go Back to Previous Page.");
+            println!("4. Logout.");
+            println!("5. Logout and Exit. (haven't implemented yet.)");
+        
+            println!();
+            print!("Enter your choice: ");
+        
+            io::stdout()
+                        .flush()
+                        .expect("Failure to flush out buffer.");
+                        
+            banking_utilities = loop {
+                let mut banking_utilities: String = String::new();
+        
+                io::stdin()
+                            .read_line(&mut banking_utilities)
+                            .expect("Failure to read input!");
+        
+                let mut banking_utilities: u8 = match banking_utilities.trim().parse::<u8>() {
+                    Ok(num) => num,
+                    Err(_) => continue,
+                };
+            };
+            
+            match banking_utilities {
+                1 => user.acc_details.change_pin(),
+                2 => user.acc_details.deactivate_account(),
+                3 => continue 'bank_utils,
+                4 => continue 'account_login,
+                _ => {
+                    println!();
+                    println!("Enter a valid choice!");
+                    println!();
+                    continue 'bank_account_utils;
+                },
+            }
+        } */
     
-    println!();
-    println!("Login: {}", &accounts[acc_index].logged_in);
-    println!("Account found at index: {acc_index}");
+    }
+    
     
     
     
         
-    }
+}
