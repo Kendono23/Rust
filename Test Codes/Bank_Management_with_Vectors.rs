@@ -88,9 +88,9 @@ impl Bank
         {
             if (acc_no == value.acc_details.acc_no)
             {
-                println!();
-                println!("Account Found!");
-                println!();
+                //println!();
+                //println!("Account Found!");
+                //println!();
                 
                 if (pin == value.acc_details.pin)
                 {
@@ -248,6 +248,106 @@ impl Bank
             return;
         }
         
+        'change_pin: loop {
+            println!();
+            print!("Enter your old pin: ");
+        
+            io::stdout()
+                        .flush()
+                        .expect("Failure to flush buffer.");
+        
+        
+            let mut old_pin: u32 = loop {
+                let mut old_pin: String = String::new();
+            
+                io::stdin()
+                            .read_line(&mut old_pin)
+                            .expect("Failure to read old pin");
+            
+                let old_pin: u32 = match old_pin.trim().parse::<u32>() {
+                    Ok(num) => break num,
+                    Err(_) => continue,
+                };
+            };
+        
+            if (old_pin == self.pin)
+            {
+                'new_pin: loop {
+                    
+                    println!();
+                    print!("Enter a new pin: ");
+        
+                    io::stdout()
+                                .flush()
+                                .expect("Failure to flush buffer.");
+        
+        
+                    let mut new_pin: u32 = loop {
+                        let mut new_pin: String = String::new();
+            
+                        io::stdin()
+                                    .read_line(&mut new_pin)
+                                    .expect("Failure to read old pin");
+            
+                        let new_pin: u32 = match new_pin.trim().parse::<u32>() {
+                            Ok(num) => break num,
+                            Err(_) => continue,
+                        };
+                    };
+                
+                    println!();
+                    print!("Confirm your new pin: ");
+        
+                    io::stdout()
+                                .flush()
+                                .expect("Failure to flush buffer.");
+        
+        
+                    let mut confirm_pin: u32 = loop {
+                        let mut confirm_pin: String = String::new();
+            
+                        io::stdin()
+                                    .read_line(&mut confirm_pin)
+                                    .expect("Failure to read old pin");
+            
+                        let confirm_pin: u32 = match confirm_pin.trim().parse::<u32>() {
+                            Ok(num) => break num,
+                            Err(_) => continue,
+                        };
+                    };
+                
+                    if (new_pin == confirm_pin)
+                    {
+                        self.pin = confirm_pin;
+                        println!();
+                        println!("Pin updated successfully!");
+                        println!();
+                        return;
+                    }
+                    
+                    else
+                    {
+                        println!();
+                        println!("Two pins do not match. Please try again!");
+                        println!();
+                        continue 'new_pin;
+                    }
+                    
+                }
+                
+            }
+            
+            else
+            {
+                println!();
+                println!("Enter your old pin again!");
+                println!();
+                continue 'change_pin;
+            }
+            
+        }
+        
+        println!();
         
         
         println!();
@@ -255,15 +355,14 @@ impl Bank
         println!();
     }
     
-    fn deactivate_account(self: &mut Self)
+    fn deactivate_account(self: &mut Self) -> u8
     {
         if (self.active == false)
         {
             println!();
             println!("Account is already deactived!");
-            self.logged_in = false;
             println!();
-            return;
+            return 2u8;
         }
         
         if (self.logged_in == false)
@@ -271,7 +370,7 @@ impl Bank
             println!();
             println!("Please Log in and try again!");
             println!();
-            return;
+            return 3u8;
         }
         
         println!();
@@ -306,14 +405,14 @@ impl Bank
                 println!();
                 println!("Account has been deactivated successfully!");
                 println!();
-                break;
+                return 1u8;
             }
             else if (deactivation_choice == "n" || deactivation_choice == "no")
             {
                 println!();
                 println!("Account deactivation cancelled!");
                 println!();
-                return;
+                return 2u8;
             }
             else
             {
@@ -409,10 +508,15 @@ fn manage_account_utils(user: &mut User) -> u8
         match banking_utilities {
             1 => user.acc_details.change_pin(),
             2 => user.acc_details.activate_account(),
-            3 => { user.acc_details.deactivate_account(); return 5u8;},
+            3 => match user.acc_details.deactivate_account() {
+                1 => { return 5u8; },
+                2 => { continue 'bank_account_utils; },
+                3 => { return 5u8; },
+                _ => (),
+            },
             4 => { println!(); return 4u8; },
-            5 => { println!(); return 5u8; },
-            6 => { return 6u8; }
+            5 => { println!(); user.acc_details.logged_in = false; return 5u8; },
+            6 => { user.acc_details.logged_in = false; return 6u8; }
             _ => {
                 println!();
                 println!("Enter a valid choice!");
@@ -555,8 +659,8 @@ fn main()
                     6 => { return; }
                     _ => ()
                 },
-                5 => { println!(); continue 'account_login; },
-                6 => { return; }
+                5 => { println!(); user.acc_details.logged_in = false; continue 'account_login; },
+                6 => { user.acc_details.logged_in = false; return; }
                 _ => {
                         println!();
                         println!("Enter a valid choice!");
