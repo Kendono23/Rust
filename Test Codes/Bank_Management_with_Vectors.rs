@@ -196,7 +196,7 @@ impl Bank
         self.check_balance();
     }
     
-    fn check_balance(self: &mut Self)
+    fn check_balance(self: &Self)
     {
         println!();
         println!("Current Balance is: ${}", self.balance);
