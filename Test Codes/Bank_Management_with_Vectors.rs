@@ -11,7 +11,6 @@ struct User
     id: u32,
     name: String,
     age: u8,
-    logged_in: bool,
     acc_details: Bank,
 }
 
@@ -20,6 +19,7 @@ struct Bank
 {
     id: u32,
     active: bool,
+    logged_in: bool,
     acc_no: u64,
     pin: u32,
     balance: u32,
@@ -33,6 +33,7 @@ impl Bank
         {
             id,
             active,
+            logged_in: true,
             acc_no,
             pin,
             balance
@@ -94,7 +95,7 @@ impl Bank
                 if (pin == value.acc_details.pin)
                 {
                     print!("Welcome {}!", value.name);
-                    value.logged_in = true;
+                    value.acc_details.logged_in = true;
                     return Some(index_value);
                 }
             }
@@ -111,6 +112,14 @@ impl Bank
         {
             println!();
             println!("Your account has been deactivated. Please activate your account and try again!");
+            println!();
+            return;
+        }
+        
+        if (self.logged_in == false)
+        {
+            println!();
+            println!("Please Log in and try again!");
             println!();
             return;
         }
@@ -157,6 +166,14 @@ impl Bank
             return;
         }
         
+        if (self.logged_in == false)
+        {
+            println!();
+            println!("Please Log in and try again!");
+            println!();
+            return;
+        }
+        
         println!();
         println!("Withdraw Money");
         println!();
@@ -198,6 +215,15 @@ impl Bank
     
     fn check_balance(self: &Self)
     {
+        
+        if (self.logged_in == false)
+        {
+            println!();
+            println!("Please Log in and try again!");
+            println!();
+            return;
+        }
+        
         println!();
         println!("Current Balance is: ${}", self.balance);
         println!();
@@ -205,6 +231,25 @@ impl Bank
     
     fn change_pin(self: &mut Self)
     {
+        
+        if (self.active == false)
+        {
+            println!();
+            println!("Your account has been deactivated. Please activate your account and try again!");
+            println!();
+            return;
+        }
+        
+        if (self.logged_in == false)
+        {
+            println!();
+            println!("Please Log in and try again!");
+            println!();
+            return;
+        }
+        
+        
+        
         println!();
         println!("Change Pin working as intended!");
         println!();
@@ -212,8 +257,99 @@ impl Bank
     
     fn deactivate_account(self: &mut Self)
     {
+        if (self.active == false)
+        {
+            println!();
+            println!("Account is already deactived!");
+            self.logged_in = false;
+            println!();
+            return;
+        }
+        
+        if (self.logged_in == false)
+        {
+            println!();
+            println!("Please Log in and try again!");
+            println!();
+            return;
+        }
+        
         println!();
-        println!("Deactivate working as intended!");
+        println!("Are you sure you want to deactivate your account?");
+        println!("You will not be able to use the services of the bank going forward");
+        println!("And your assets will be frozen until you re-activate your account!");
+        println!();
+        
+        println!("To confirm deactivation, enter Yes");
+        println!("To go back, press No");
+        
+        print!("Enter your choice: ");
+        
+        io::stdout()
+                    .flush()
+                    .expect("Failure to flush buffer");
+                    
+        loop {
+            let mut deactivation_choice: String = String::new();
+        
+            io::stdin()
+                        .read_line(&mut deactivation_choice)
+                        .expect("Failure to read input");
+        
+            deactivation_choice.pop();
+            deactivation_choice = deactivation_choice.to_lowercase();
+        
+            if (deactivation_choice == "y" || deactivation_choice == "yes")
+            {
+                self.active = false;
+                self.logged_in = false;
+                println!();
+                println!("Account has been deactivated successfully!");
+                println!();
+                break;
+            }
+            else if (deactivation_choice == "n" || deactivation_choice == "no")
+            {
+                println!();
+                println!("Account deactivation cancelled!");
+                println!();
+                return;
+            }
+            else
+            {
+                println!();
+                println!("Please enter a valid choice!");
+                println!();
+                continue;
+            }
+        }
+        
+    }
+    
+    fn activate_account(self: &mut Self)
+    {
+    
+        if (self.active == true)
+        {
+            println!();
+            println!("Account is already active!");
+            println!();
+            return;
+        }
+        
+        if (self.logged_in == false)
+        {
+            println!();
+            println!("Please Log in and try again!");
+            println!();
+            return;
+        }
+        
+        self.active = true;
+        
+        println!();
+        println!("Your rust account has been activated!");
+        println!("Enjoy the services!");
         println!();
     }
 }
@@ -227,7 +363,6 @@ impl User
             id,
             name,
             age,
-            logged_in: false,
             acc_details,
         }
     }
@@ -245,10 +380,11 @@ fn manage_account_utils(user: &mut User) -> u8
         println!();
     
         println!("1. Change your pin.");
-        println!("2. Deactivate Account.");
-        println!("3. Go Back to Previous Page.");
-        println!("4. Logout.");
-        println!("5. Logout and Exit.");
+        println!("2. Activate Account.");
+        println!("3. Deactivate Account.");
+        println!("4. Go Back to Previous Page.");
+        println!("5. Logout.");
+        println!("6. Logout and Exit.");
         
         println!();
         print!("Enter your choice: ");
@@ -272,10 +408,11 @@ fn manage_account_utils(user: &mut User) -> u8
             
         match banking_utilities {
             1 => user.acc_details.change_pin(),
-            2 => user.acc_details.deactivate_account(),
-            3 => { println!(); return 3u8; },
+            2 => user.acc_details.activate_account(),
+            3 => { user.acc_details.deactivate_account(); return 5u8;},
             4 => { println!(); return 4u8; },
-            5 => { return 5u8; }
+            5 => { println!(); return 5u8; },
+            6 => { return 6u8; }
             _ => {
                 println!();
                 println!("Enter a valid choice!");
@@ -371,7 +508,7 @@ fn main()
         };
     
         println!();
-        println!("Login: {}", &accounts[acc_index].logged_in);
+        println!("Login: {}", &accounts[acc_index].acc_details.logged_in);
         println!("Account found at index: {acc_index}");
     
         let user: &mut User = &mut accounts[acc_index];
@@ -413,9 +550,9 @@ fn main()
                 2 => user.acc_details.deposit(),
                 3 => user.acc_details.withdraw(),
                 4 => match manage_account_utils(user) { // could move this fn into impl User 
-                    3 => continue 'bank_utils,
-                    4 => continue 'account_login,
-                    5 => { return; }
+                    4 => continue 'bank_utils,
+                    5 => continue 'account_login,
+                    6 => { return; }
                     _ => ()
                 },
                 5 => { println!(); continue 'account_login; },
