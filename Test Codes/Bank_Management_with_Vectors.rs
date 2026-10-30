@@ -107,22 +107,99 @@ impl Bank
     
     fn deposit(self: &mut Self)
     {
+        if (self.active == false)
+        {
+            println!();
+            println!("Your account has been deactivated. Please activate your account and try again!");
+            println!();
+            return;
+        }
+        
         println!();
-        println!("Deposit working as intended!");
+        println!("Deposit Money");
         println!();
+        
+        let mut deposit: u32 = 0;
+        
+        print!("Enter the amount you want to deposit: $");
+        
+        io::stdout()
+                    .flush()
+                    .expect("Failure to flush out buffer.");
+        
+        deposit = loop {
+            let mut deposit: String = String::new();
+            
+            io::stdin()
+                        .read_line(&mut deposit)
+                        .expect("Failure to read deposit value!");
+            
+            let deposit: u32 = match deposit.trim().parse::<u32>() {
+                Ok(num) => break num,
+                Err(_) => { println!(); println!("Enter a valid value!"); println!(); continue; },
+            };
+        };
+        
+        self.balance = self.balance + deposit;
+        
+        println!();
+        println!("Money deposited successfully!");
+        self.check_balance();
     }
     
     fn withdraw(self: &mut Self)
     {
+        if (self.active == false)
+        {
+            println!();
+            println!("Your account has been deactivated. Please activate your account and try again!");
+            println!();
+            return;
+        }
+        
         println!();
-        println!("Withdraw working as intended!");
+        println!("Withdraw Money");
         println!();
+        
+        let mut withdraw: u32 = 0;
+        
+        print!("Enter the amount you want to withdraw: $");
+        
+        io::stdout()
+                    .flush()
+                    .expect("Failure to flush out buffer.");
+        
+        withdraw = loop {
+            let mut withdraw: String = String::new();
+            
+            io::stdin()
+                        .read_line(&mut withdraw)
+                        .expect("Failure to read deposit value!");
+            
+            let withdraw: u32 = match withdraw.trim().parse::<u32>() {
+                Ok(num) => break num,
+                Err(_) => { println!(); println!("Enter a valid value!"); println!(); continue; },
+            };
+        };
+        
+        if (self.balance < withdraw) {
+            println!();
+            println!("Cannot withdraw ${withdraw}");
+            println!();
+            return;
+        }
+        
+        self.balance = self.balance - withdraw;
+        
+        println!();
+        println!("Money withdrawn successfully!");
+        self.check_balance();
     }
     
     fn check_balance(self: &mut Self)
     {
         println!();
-        println!("Check Balance working as intended!");
+        println!("Current Balance is: ${}", self.balance);
         println!();
     }
     
@@ -171,7 +248,7 @@ fn manage_account_utils(user: &mut User) -> u8
         println!("2. Deactivate Account.");
         println!("3. Go Back to Previous Page.");
         println!("4. Logout.");
-        println!("5. Logout and Exit. (haven't implemented yet.)");
+        println!("5. Logout and Exit.");
         
         println!();
         print!("Enter your choice: ");
@@ -309,7 +386,7 @@ fn main()
             println!("3. Withdraw Money.");
             println!("4. Manage Account.");
             println!("5. Logout.");
-            println!("6. Logout and Exit. (haven't implemented yet.)");
+            println!("6. Logout and Exit.");
     
             println!();
             print!("Enter your choice: ");
@@ -354,4 +431,4 @@ fn main()
     
     }
         
-    }
+}
