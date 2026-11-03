@@ -26,9 +26,11 @@ struct Library {
 
 #[derive(Debug)]
 struct Book {
+    id: u16,
     isbn10: String,
     isbn13: String,
     book_name: String,
+    book_count: u16,
 }
 
 impl User {
@@ -96,9 +98,9 @@ impl User {
                     continue 'confirm_user;
                 }
                 
-            }
+            };
             
-        }
+        };
         
         let mut phone: String = String::new();
         
@@ -154,9 +156,9 @@ impl User {
                     continue 'confirm_ph;
                 }
                 
-            }
+            };
             
-        }
+        };
         
 */
         
@@ -177,7 +179,7 @@ impl User {
 
 impl Book {
     
-    fn book_details(book_name: String) -> Self
+    fn book_details(id: u16, book_name: String, book_count: u16) -> Self
     {
 /*
         
@@ -209,9 +211,11 @@ impl Book {
 */
         
         Self {
+            id,
             isbn10: String::from("3628284657"),
             isbn13: String::from("3628910373153"),
             book_name,
+            book_count,
         }
         
     }
@@ -223,13 +227,15 @@ impl Book {
 
 impl Library {
     
-    fn user_details(id: u32, books_rented_by_user: Vec<Book>) -> Self {
+    fn user_details(id: u32) -> Self {
         
 /*
         
         let id: u32 = rand::rng().random_range(10000..=9999999);
         
 */
+        
+        let books_rented_by_user: Vec<Book> = Vec::new();
         
         Self {
             id,
@@ -248,16 +254,82 @@ impl Library {
     }
 }
 
-fn generate_data()
+fn generate_data(users: &mut Vec<User>, book: &mut Vec<Book>)
 {
-    todo!();
+    let mut number_of_books: u16 = 5 * 2;
+    
+    while (number_of_books > 0) {
+        
+        let book_data: Book = Book::book_details(number_of_books, String::from("Animal Farm"), 1u16);
+        
+        book.push(book_data);
+        
+        number_of_books = number_of_books - 1;
+        
+    }
+    
+    let mut id: u32 = 63268;
+        
+    let library: Library = Library::user_details(id);
+        
+    let user: User = User::make_user(id, library);
+        
+    users.push(user);
+    
+    println!();
+    println!("Users Generated Successfully!");
+    println!();
+
 }
 
 fn main() {
     
-    loop {
+    let mut book: Vec<Book> = Vec::new();
+    let mut users: Vec<User> = Vec::new();
     
-        generate_data();
+    let mut number_of_users: u32 = loop {
+        
+        println!();
+        print!("Enter the number of users: ");
+        
+        let mut number_of_users: String = String::new();
+        
+        io::stdout()
+                    .flush()
+                    .expect("Failed to flush buffer.");
+        
+        io::stdin()
+                    .read_line(&mut number_of_users)
+                    .expect("Failed to read number of users");
+        
+        let number_of_users: u32 = match number_of_users.trim().parse::<u32>() {
+            Ok(num) => { break num; },
+            Err(_) => {
+                println!();
+                println!("Try Again!");
+                println!();
+                continue;
+            }
+        };
+        
+    };
+    
+    while (number_of_users > 0) {
+    
+        let mut_user = &mut users;
+        let mut_book = &mut book;
+    
+        generate_data(mut_user, mut_book);
+        
+        number_of_users = number_of_users - 1;
+        
+    }
+    
+    for user in &users {
+        
+        println!();
+        println!("{user:#?}");
+        println!();
         
     }
 }
