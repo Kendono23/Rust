@@ -210,4 +210,54 @@ impl Book {
         
         Self {
             isbn10: String::from("3628284657"),
-            isbn13: String::from("362
+            isbn13: String::from("3628910373153"),
+            book_name,
+        }
+        
+    }
+    
+    fn update_book() {
+        todo!();
+    }
+}
+
+impl Library {
+    
+    fn user_details(id: u32, books_rented_by_user: Vec<Book>) -> Self {
+        
+/*
+        
+        let id: u32 = rand::rng().random_range(10000..=9999999);
+        
+*/
+        
+        Self {
+            id,
+            books_rented_by_user,
+            books_in_library: 2_678u32,
+            rented_books: 0u8,
+            rent_limit: 10u8,
+            overdue_books: 0u8,
+            overdue_charges: 0u16,
+        }
+        
+    }
+    
+    fn rent_book() {
+        todo!();
+    }
+}
+
+fn generate_data()
+{
+    todo!();
+}
+
+fn main() {
+    
+    loop {
+    
+        generate_data();
+        
+    }
+}
