@@ -17,7 +17,6 @@ struct User {
 struct Library {
     id: u32,
     books_rented_by_user: Vec<Book>,
-    books_in_library: u32,
     rented_books: u8,
     rent_limit: u8,
     overdue_books: u8,
@@ -31,6 +30,7 @@ struct Book {
     isbn13: String,
     book_name: String,
     book_count: u16,
+    books_in_library: u16,
 }
 
 impl User {
@@ -179,7 +179,7 @@ impl User {
 
 impl Book {
     
-    fn book_details(id: u16, book_name: String, book_count: u16) -> Self
+    fn book_details(id: u16, book_name: String, book_count: u16, books_in_library: u16) -> Self
     {
 /*
         
@@ -208,6 +208,28 @@ impl Book {
         println!("Book added successfully!");
         println!();
         
+        let book_count: u16 = loop {
+            
+            let mut book_count: String = String::new();
+            
+            println!();
+            print!("Enter book count: ");
+            
+            io::stdout()
+                        .flush()
+                        .expect("Failed to flush buffer");
+            
+            io::stdin()
+                        .read_line(&mut book_count)
+                        .expect("Failed to read book count");
+            
+            let book_count: u16 = match book_count.trim().parse::<u16>() {
+                Ok(num) => break num,
+                Err(_) => continue,
+            };
+            
+        };
+        
 */
         
         Self {
@@ -216,6 +238,7 @@ impl Book {
             isbn13: String::from("3628910373153"),
             book_name,
             book_count,
+            books_in_library,
         }
         
     }
@@ -240,7 +263,6 @@ impl Library {
         Self {
             id,
             books_rented_by_user,
-            books_in_library: 2_678u32,
             rented_books: 0u8,
             rent_limit: 10u8,
             overdue_books: 0u8,
@@ -260,7 +282,7 @@ fn generate_data(users: &mut Vec<User>, book: &mut Vec<Book>)
     
     while (number_of_books > 0) {
         
-        let book_data: Book = Book::book_details(number_of_books, String::from("Animal Farm"), 1u16);
+        let book_data: Book = Book::book_details(number_of_books, String::from("Animal Farm"), 1u16, number_of_books);
         
         book.push(book_data);
         
@@ -309,7 +331,7 @@ fn main() {
                 println!("Try Again!");
                 println!();
                 continue;
-            }
+            },
         };
         
     };
