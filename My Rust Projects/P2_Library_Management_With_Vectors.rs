@@ -30,7 +30,6 @@ struct Book {
     isbn13: String,
     book_name: String,
     book_count: u16,
-    books_in_library: u16,
 }
 
 impl User {
@@ -104,7 +103,7 @@ impl User {
         
         let mut phone: String = String::new();
         
-        phone = 'take_phone {
+        phone = 'take_phone: loop {
             
             println!();
             print!("Enter your phone number: ");
@@ -117,12 +116,14 @@ impl User {
                         .read_line(&mut phone)
                         .expect("Failed to read phone number");
             
+            phone = phone.pop();
+            
             let mut confirm_phone: String = String::new();
             
             println!();
             print!("You have entered: {phone}");
             
-            confirm_phone = 'confirm_ph loop {
+            confirm_phone = 'confirm_ph: loop {
                 
                 println!();
                 print!("Confirm phone number? (Y/n): ");
@@ -131,19 +132,21 @@ impl User {
                             .flush()
                             .expect("Failed to flush buffer.");
                 
-                io.stdin()
+                io::stdin()
                             .read_line(&mut confirm_phone)
                             .expect("Failed to confirm phone number");
                 
-                if (confirm_username == "y" || confirm_username == "yes")
+                confirm_phone = confirm_phone.to_lowercase().pop();
+                
+                if (confirm_phone == "y" || confirm_phone == "yes")
                 {
                     println!();
                     println!("Phone Number Confirmed!");
                     println!();
-                    break 'take_phone;
+                    break 'take_phone phone;
                 }
                 
-                else if (confirm_username == "n" || confirm_username == "no")
+                else if (confirm_phone == "n" || confirm_phone == "no")
                 {
                     continue 'take_phone;
                 }
@@ -179,7 +182,7 @@ impl User {
 
 impl Book {
     
-    fn book_details(id: u16, book_name: String, book_count: u16, books_in_library: u16) -> Self
+    fn book_details(id: u16, book_name: String, book_count: u16) -> Self
     {
 /*
         
@@ -238,7 +241,6 @@ impl Book {
             isbn13: String::from("3628910373153"),
             book_name,
             book_count,
-            books_in_library,
         }
         
     }
@@ -278,11 +280,11 @@ impl Library {
 
 fn generate_data(users: &mut Vec<User>, book: &mut Vec<Book>)
 {
-    let mut number_of_books: u16 = 5 * 2;
+    let mut number_of_books: u16 = 5;
     
     while (number_of_books > 0) {
         
-        let book_data: Book = Book::book_details(number_of_books, String::from("Animal Farm"), 1u16, number_of_books);
+        let book_data: Book = Book::book_details(number_of_books, String::from("Animal Farm"), 1u16);
         
         book.push(book_data);
         
@@ -299,15 +301,125 @@ fn generate_data(users: &mut Vec<User>, book: &mut Vec<Book>)
     users.push(user);
     
     println!();
-    println!("Users Generated Successfully!");
+    println!("User {id} Generated Successfully!");
     println!();
 
+}
+
+fn login_user(users: &Vec<User>) -> Option<usize> {
+    
+    let id: u32 = loop {
+        
+        println!();
+        print!("Enter your Library ID: ");
+        
+        let mut id: String = String::new();
+        
+        io::stdout()
+                    .flush()
+                    .expect("Failed to flush buffer");
+        
+        io::stdin()
+                    .read_line(&mut id)
+                    .expect("Failed to read user id");
+        
+        let id: u32 = match id.trim().parse::<u32>() {
+            Ok(num) => { break num; },
+            Err(_) => {
+                println!();
+                println!("Try again");
+                println!();
+                continue;
+            }
+        };
+        
+    };
+    
+    let mut phone: String = String::new();
+        
+        phone = 'take_phone: loop {
+            
+            println!();
+            println!("Phone number: 000-000-0000");
+            print!("Enter your phone number: ");
+            
+            io::stdout()
+                        .flush()
+                        .expect("Failed to flush buffer.");
+            
+            io::stdin()
+                        .read_line(&mut phone)
+                        .expect("Failed to read phone number");
+            
+            phone = phone.pop();
+            
+            let mut confirm_phone: String = String::new();
+            
+            println!();
+            print!("You have entered: {phone}");
+            
+            confirm_phone = 'confirm_ph: loop {
+                
+                println!();
+                print!("Confirm phone number? (Y/n): ");
+                
+                io::stdout()
+                            .flush()
+                            .expect("Failed to flush buffer.");
+                
+                io::stdin()
+                            .read_line(&mut confirm_phone)
+                            .expect("Failed to confirm phone number");
+                
+                confirm_phone = confirm_phone.to_lowercase().pop();
+                
+                if (confirm_phone == "y" || confirm_phone == "yes")
+                {
+                    println!();
+                    println!("Phone Number Confirmed!");
+                    println!();
+                    break 'take_phone phone;
+                }
+                
+                else if (confirm_phone == "n" || confirm_phone == "no")
+                {
+                    continue 'take_phone;
+                }
+                
+                else
+                {
+                    println!();
+                    println!("Enter valid choice!");
+                    println!();
+                    continue 'confirm_ph;
+                }
+                
+            };
+            
+        };
+        
+        let mut index: usize = 0;
+        
+    for user in users {
+        if (user.id == id && user.phone == phone)
+        {
+            println!("Welcome User!");
+            return Some(index);
+        }
+        
+        index = index + 1;
+    }
+    
+    return None;
+    
 }
 
 fn main() {
     
     let mut book: Vec<Book> = Vec::new();
     let mut users: Vec<User> = Vec::new();
+    
+    let mut number_of_books_in_library: u32 = 0u32;
     
     let mut number_of_users: u32 = loop {
         
@@ -336,6 +448,34 @@ fn main() {
         
     };
     
+    number_of_books_in_library = 5 * number_of_users;
+    
+/*
+    
+    number_of_books_in_library = loop {
+        
+        let mut number_of_books_in_library: String = String::new();
+        
+        println!();
+        print!("Enter total number of books in library: ");
+        
+        io::stdout()
+                    .flush()
+                    .expect("Failed to flush buffer.");
+        
+        io::stdin()
+                    .read_line(&mut number_of_books_in_library)
+                    .expect("Failed to read total number of books");
+        
+        let number_of_books_in_library: u32 = match number_of_books_in_library.trim().parse::<u32>() {
+            Ok(num) => break num,
+            Err(_) => continue,
+        };
+        
+    };
+    
+*/
+    
     while (number_of_users > 0) {
     
         let mut_user = &mut users;
@@ -354,4 +494,71 @@ fn main() {
         println!();
         
     }
+    
+    let mut active_user: &mut User = loop {
+        
+        match login_user(&users) {
+            Some(index) => { break &mut users[index]; }
+            None => {
+                println!();
+                println!("Incorrect ID or phone number! Please Try Again!");
+                println!();
+                continue;
+            }
+        }
+        
+    };
+    
+    'library: loop {
+    
+        let mut choice: u8 = 0;
+        
+        println!();
+        println!("Welcome to Rust Library");
+        println!();
+        
+        println!("What would you like to do today?");
+        
+        println!("1. Rent a book.");
+        println!("2. Exit.");
+        println!();
+        
+        choice = loop {
+            
+            print!("Enter your choice: ");
+            
+            let mut choice: String = String::new();
+            
+            io::stdout()
+                        .flush()
+                        .expect("Failed to flush buffer");
+            
+            io::stdin()
+                        .read_line(&mut choice)
+                        .expect("Failed to read choice of the user");
+            
+            let choice: u8 = match choice.trim().parse::<u8>() {
+                Ok(num) => { break num; },
+                Err(_) => {
+                    println!();
+                    println!("Please try again!");
+                    println!();
+                    continue;
+                },
+            };
+            
+        };
+        
+        match choice {
+            
+            2 => { break 'library; },
+            _ => (),
+            
+        }
+        
+    }
+    
+    println!();
+    println!("Wish you have a good day!");
+    println!();
 }
