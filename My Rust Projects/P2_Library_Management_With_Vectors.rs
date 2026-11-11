@@ -24,6 +24,7 @@ struct Library {
 }
 
 #[derive(Debug)]
+#[derive(Clone)]
 struct Book {
     id: u16,
     isbn10: String,
@@ -116,7 +117,7 @@ impl User {
                         .read_line(&mut phone)
                         .expect("Failed to read phone number");
             
-            phone = phone.pop();
+            phone.pop();
             
             let mut confirm_phone: String = String::new();
             
@@ -136,18 +137,20 @@ impl User {
                             .read_line(&mut confirm_phone)
                             .expect("Failed to confirm phone number");
                 
-                confirm_phone = confirm_phone.to_lowercase().pop();
+                confirm_phone = confirm_phone.to_lowercase();
+                confirm_phone.pop();
                 
                 if (confirm_phone == "y" || confirm_phone == "yes")
                 {
                     println!();
                     println!("Phone Number Confirmed!");
                     println!();
-                    break 'take_phone phone;
+                    break 'take_phone phone phone;
                 }
                 
                 else if (confirm_phone == "n" || confirm_phone == "no")
                 {
+                    phone.clear();
                     continue 'take_phone;
                 }
                 
@@ -174,9 +177,10 @@ impl User {
         
     }
     
-    fn update_user()
-    {
+    fn update_user(self: &mut Self) {
+        
         todo!();
+        
     }
 }
 
@@ -245,8 +249,10 @@ impl Book {
         
     }
     
-    fn update_book() {
+    fn update_book(self: &mut Self) {
+        
         todo!();
+        
     }
 }
 
@@ -273,8 +279,116 @@ impl Library {
         
     }
     
-    fn rent_book() {
+    fn rent_book(self: &mut Self, books: &Vec<Book>) {
+    
+        if self.overdue_books > 1 {
+            println!();
+            println!("Please return your overdue books and pay the overdue charges: ${}", self.overdue_charges);
+            println!("And then you can rent more books!");
+            println!();
+            return;
+        }
+        
+        if self.rented_books == self.rent_limit {
+            println!();
+            println!("You cannot rent any more books!");
+            println!("Return some books and then you will be allowed to rent more books!");
+            println!();
+            return;
+        }
+        
+        for book in books {
+            println!("{book:#?}");
+        }
+        
+        let book_id: u16 = loop {
+            
+            let mut book_id: String = String::new();
+            
+            println!();
+            print!("Enter the book id that you would like to rent: ");
+            
+            io::stdout()
+                        .flush()
+                        .expect("Failed to flush buffer.");
+            
+            io::stdin()
+                        .read_line(&mut book_id)
+                        .expect("Failed to read book id");
+            
+            let book_id: u16 = match book_id.trim().parse::<u16>() {
+                Ok(num) => break num,
+                Err(_) => continue,
+            };
+            
+        };
+        
+        for book in books {
+            if (book_id == book.id)
+            {
+                println!();
+                println!("Would you like to rent the book {}", book.book_name);
+                println!();
+                
+                let mut confirm_rent: String = String::new();
+                
+                println!();
+                print!("Confirm Rent? (Y/n): ");
+                    
+                io::stdout()
+                            .flush()
+                            .expect("Failed to flush buffer");
+                    
+                io::stdin()
+                            .read_line(&mut confirm_rent)
+                            .expect("Failed to read confirmation");
+                
+                confirm_rent = confirm_rent.to_lowercase();
+                confirm_rent.pop();
+                
+                if (confirm_rent == "y" || confirm_rent == "yes")
+                {
+                    println!();
+                    
+                    let selected_book: Book = book.clone();
+                    
+                    self.rented_books = self.rented_books + 1;
+                    self.books_rented_by_user.push(selected_book);
+                    
+                    println!("Book Rented and added to your account!");
+                    println!();
+                    return;
+                }
+                
+                else
+                {
+                    println!();
+                    println!("Book was not rented!");
+                    println!();
+                    return;
+                }
+            }
+        }
+        
+        println!();
+        println!("Invalid ID! No book found with ID: {book_id}!");
+        println!();
+        
+    }
+    
+    fn return_book(self: &mut Self) {
         todo!();
+    }
+    
+    fn show_rented_books(self: &Self) {
+        println!();
+        println!("Information on all the books that you have rented");
+        println!();
+        
+        for books in &self.books_rented_by_user {
+            println!("{books:#?}");
+        }
+        println!();
     }
 }
 
@@ -351,7 +465,7 @@ fn login_user(users: &Vec<User>) -> Option<usize> {
                         .read_line(&mut phone)
                         .expect("Failed to read phone number");
             
-            phone = phone.pop();
+            phone.pop();
             
             let mut confirm_phone: String = String::new();
             
@@ -371,7 +485,8 @@ fn login_user(users: &Vec<User>) -> Option<usize> {
                             .read_line(&mut confirm_phone)
                             .expect("Failed to confirm phone number");
                 
-                confirm_phone = confirm_phone.to_lowercase().pop();
+                confirm_phone = confirm_phone.to_lowercase();
+                confirm_phone.pop();
                 
                 if (confirm_phone == "y" || confirm_phone == "yes")
                 {
@@ -383,6 +498,7 @@ fn login_user(users: &Vec<User>) -> Option<usize> {
                 
                 else if (confirm_phone == "n" || confirm_phone == "no")
                 {
+                    phone.clear();
                     continue 'take_phone;
                 }
                 
@@ -403,7 +519,6 @@ fn login_user(users: &Vec<User>) -> Option<usize> {
     for user in users {
         if (user.id == id && user.phone == phone)
         {
-            println!("Welcome User!");
             return Some(index);
         }
         
@@ -487,6 +602,8 @@ fn main() {
         
     }
     
+/*
+    
     for user in &users {
         
         println!();
@@ -494,6 +611,9 @@ fn main() {
         println!();
         
     }
+    
+*/
+
     
     let mut active_user: &mut User = loop {
         
@@ -509,6 +629,13 @@ fn main() {
         
     };
     
+    println!();
+    println!("Welcome {}!", active_user.name);
+    println!();
+    
+    println!("{active_user:#?}");
+    println!();
+    
     'library: loop {
     
         let mut choice: u8 = 0;
@@ -520,7 +647,10 @@ fn main() {
         println!("What would you like to do today?");
         
         println!("1. Rent a book.");
-        println!("2. Exit.");
+        println!("2. Return a book.");
+        println!("3. Show your rented books.");
+        println!("4. Update your profile.");
+        println!("5. Exit.");
         println!();
         
         choice = loop {
@@ -551,8 +681,17 @@ fn main() {
         
         match choice {
             
-            2 => { break 'library; },
-            _ => (),
+            1 => active_user.library.rent_book(&book),
+            2 => active_user.library.return_book(),
+            3 => active_user.library.show_rented_books(),
+            4 => active_user.update_user(),
+            5 => { break 'library; },
+            _ => {
+                println!();
+                println!("Invalid Choice! Try Again!");
+                println!();
+                continue 'library;
+            },
             
         }
         
