@@ -145,7 +145,7 @@ impl User {
                     println!();
                     println!("Phone Number Confirmed!");
                     println!();
-                    break 'take_phone phone phone;
+                    break 'take_phone phone;
                 }
                 
                 else if (confirm_phone == "n" || confirm_phone == "no")
@@ -179,7 +179,103 @@ impl User {
     
     fn update_user(self: &mut Self) {
         
-        todo!();
+        println!();
+        println!("Your current phone number: {}", self.phone);
+        print!("Would you like to update your phone number? (Y/n): ");
+        
+        let mut update_start: String = String::new();
+        
+        io::stdout()
+                    .flush()
+                    .expect("Failed to flush buffer");
+                    
+        io::stdin()
+                    .read_line(&mut update_start)
+                    .expect("Failed to read confirmation");
+        
+        update_start = update_start.to_lowercase();
+        update_start.pop();
+        
+        if (update_start == "y" || update_start == "yes") {
+            
+            let mut phone: String = String::new();
+            
+            phone = 'take_phone: loop {
+            
+                println!();
+                print!("Enter your new phone number: ");
+            
+                io::stdout()
+                            .flush()
+                            .expect("Failed to flush buffer.");
+            
+                io::stdin()
+                            .read_line(&mut phone)
+                            .expect("Failed to read phone number");
+            
+                phone.pop();
+            
+                let mut confirm_phone: String = String::new();
+            
+                println!();
+                print!("You have entered: {phone}");
+            
+                confirm_phone = 'confirm_ph: loop {
+                
+                    println!();
+                    print!("Confirm phone number? (Y/n): ");
+                
+                    io::stdout()
+                                .flush()
+                                .expect("Failed to flush buffer.");
+                
+                    io::stdin()
+                                .read_line(&mut confirm_phone)
+                                .expect("Failed to confirm phone number");
+                
+                    confirm_phone = confirm_phone.to_lowercase();
+                    confirm_phone.pop();
+                
+                    if (confirm_phone == "y" || confirm_phone == "yes")
+                    {
+                        println!();
+                        println!("Phone Number Confirmed!");
+                        println!();
+                        break 'take_phone phone;
+                    }
+                
+                    else if (confirm_phone == "n" || confirm_phone == "no")
+                    {
+                        phone.clear();
+                        continue 'take_phone;
+                    }
+                
+                    else
+                    {
+                        println!();
+                        println!("Enter valid choice!");
+                        println!();
+                        continue 'confirm_ph;
+                    }
+                
+                };
+            
+            };
+            
+            self.phone.clear();
+            self.phone = phone;
+            
+            println!();
+            println!("Phone number was updated successfully!");
+            println!("{self:#?}");
+            println!();
+            return;
+            
+        }
+        
+        println!();
+        println!("Updation of phone number was cancelled");
+        println!();
         
     }
 }
@@ -377,10 +473,83 @@ impl Library {
     }
     
     fn return_book(self: &mut Self) {
-        todo!();
+        
+        if (self.rented_books == 0)
+        {
+            println!();
+            println!("You have no books to return!");
+            println!("Please rent a book for it to be returned!");
+            println!();
+            return;
+        }
+        
+        let mut index: usize = 0;
+        
+        for books in &self.books_rented_by_user {
+            println!("{books:#?}");
+        }
+        
+        println!();
+        
+        let book_id: u16 = loop {
+            
+            let mut book_id: String = String::new();
+            
+            print!("Enter the book id you want to return: ");
+            
+            io::stdout()
+                        .flush()
+                        .expect("Failed to flush buffer");
+            
+            io::stdin()
+                        .read_line(&mut book_id)
+                        .expect("Failed to read book id");
+            
+            let book_id: u16 = match book_id.trim().parse::<u16>() {
+                Ok(num) => break num,
+                Err(_) => continue,
+            };
+        };
+        
+        let mut book_found: bool = false;
+        
+        for books in &mut self.books_rented_by_user {
+            
+            if (book_id == books.id) {
+                book_found = true;
+                break;
+            }
+            
+            index = index + 1;
+            
+        }
+        
+        if (book_found == true) {
+            
+            &mut self.books_rented_by_user.remove(index);
+            self.rented_books = self.rented_books - 1;
+                
+            println!();
+            println!("The book was returned to the library!");
+            println!();
+            return;
+        }
+        
+        println!();
+        println!("Book ID was not found!");
+        println!();
     }
     
     fn show_rented_books(self: &Self) {
+    
+        if (self.rented_books == 0) {
+            println!();
+            println!("You have not yet rented any books!");
+            println!("Rent a book to show the information regarding that book!");
+            println!();
+            return;
+        }
+    
         println!();
         println!("Information on all the books that you have rented");
         println!();
